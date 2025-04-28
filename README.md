@@ -43,8 +43,8 @@ This repository builds upon the spirit of TinyZero and utilizes an `unsloth`-bas
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/[Your GitHub Username]/[Your Repository Name].git
-    cd [Your Repository Name]
+    git clone https://github.com/josephqiu123/Tinyzero-Reproduce-Mini
+    cd Tinyzero-Reproduce-Mini
     ```
 
 2.  **Create a virtual environment (recommended):**
@@ -92,7 +92,7 @@ You will need to:
 2.  **Update the path (if local):** If you download the file, modify the `data_files` argument in the `get_countdown_questions` function within the script to point to your local path.
 
 ```python
-# Inside get_countdown_questions function in the script:
+# Inside get_questions function in the script:
 # Example using Hub ID (recommended):
 data = load_dataset("Jiayi-Pan/Countdown-Tasks-3to4", split="train")
 # Example using local file:
