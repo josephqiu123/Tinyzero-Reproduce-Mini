@@ -14,13 +14,6 @@ Traditional RLHF methods, especially those aiming for self-improvement loops see
 
 This repository builds upon the spirit of TinyZero and utilizes an `unsloth`-based framework, directly adapted from the **Unsloth Qwen2.5 GRPO Tutorial** ([Colab Notebook Link](https://colab.research.google.com/github/unslothai/notebooks/blob/main/nb/Qwen2.5_(3B)-GRPO.ipynb#scrollTo=vzOuSVCL_GA9)). It provides a concrete, runnable example of GRPO-based RLHF. The underlying RL algorithm used is Group Relative Policy Optimization (GRPO); you can learn more about its theory in the [Hugging Face LLM Course - GRPO Section](https://huggingface.co/learn/llm-course/en/chapter12/3a). By focusing on efficiency (4-bit quantization, PEFT/LoRA, optimized kernels via Unsloth, VLLM integration), it demonstrates the feasibility of performing this type of training on a smaller scale.
 
-## Features
-
-*   **Accessible RLHF:** Code run on a single GPU, significantly lowering the barrier for RLHF experimentation compared to large-scale setups.
-*   **Reinforcement Learning (GRPO):** Uses `trl.GRPOTrainer` to fine-tune the LLM based on custom reward signals. 
-*   **Efficiency (`unsloth` + `vllm`):** Leverages `unsloth` for optimized training/LoRA and `vllm` (integrated via `unsloth` and `trl`) for faster generation during RL sampling. 
-*   **Custom Rewards:** Implements two reward functions focused on format adherence and mathematical correctness for the Countdown task.
-
 
 ## Requirements
 
@@ -76,15 +69,7 @@ This repository builds upon the spirit of TinyZero and utilizes an `unsloth`-bas
         ```
 
 
-## Dataset
-
-The training script expects a dataset (e.g., in Parquet format) with at least two columns:
-
-*   `nums`: A list of integers available to form the equation.
-*   `target`: The integer target value the equation should equal.
-
-The specific dataset used in the example script (`data/Countdown-Tasks-3to4.parquet`) can be found on the Hugging Face Hub:
-*   **Dataset Source:** [Jiayi-Pan/Countdown-Tasks-3to4](https://huggingface.co/datasets/Jiayi-Pan/Countdown-Tasks-3to4)
+## Datasets
 
 You will need to:
 
@@ -99,7 +84,7 @@ data = load_dataset("Jiayi-Pan/Countdown-Tasks-3to4", split="train")
 # data = load_dataset("parquet", data_files="data/Countdown-Tasks-3to4.parquet", split="train")
 ```
 
-## Dataset
+## Reward Functions
 
 Reinforcement Learning algorithms like GRPO rely on reward functions to guide the model towards desired behaviors. These functions evaluate the model's generated completions based on specific criteria and assign a numerical score (reward). Higher rewards encourage the model to produce similar outputs in the future.
 
