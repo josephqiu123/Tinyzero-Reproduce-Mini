@@ -97,3 +97,45 @@ You will need to:
 data = load_dataset("Jiayi-Pan/Countdown-Tasks-3to4", split="train")
 # Example using local file:
 # data = load_dataset("parquet", data_files="data/Countdown-Tasks-3to4.parquet", split="train")
+
+## Dataset
+
+Reinforcement Learning algorithms like GRPO rely on reward functions to guide the model towards desired behaviors. These functions evaluate the model's generated completions based on specific criteria and assign a numerical score (reward). Higher rewards encourage the model to produce similar outputs in the future.
+
+This project utilizes two distinct reward functions applied sequentially or combined by the `GRPOTrainer`:
+
+### 1. `strict_format_reward_func`
+
+This function focuses solely on the structural and syntactical correctness of the model's output, specifically checking adherence to the predefined `<think>`/`<answer>` format. It provides partial credit to guide the model incrementally.
+
+**Logic & Scoring:**
+
+*   **Input:** Takes the list of model completions (`completions`).
+*   **Checks:**
+    1.  **Overall Structure:** Uses regex to verify if the output matches the pattern `^<think>([\s\S]*?)<\/think>\n<answer>([\s\S]*?)<\/answer>$`.
+    2.  **Answer Content Format:** If the overall structure is correct, it examines the content within the `<answer>` tags. It checks if this content consists of *exactly one* non-empty line.
+    3.  **Equation Syntax:** If there is exactly one line in `<answer>`, it further checks if this line looks like a valid mathematical equation by ensuring it only contains numbers, operators (`+`, `-`, `*`, `/`), parentheses, periods, whitespace, and crucially, includes an equals sign (`=`).
+*   **Scoring:**
+    *   **`0.0` points:** If the overall `<think>`/`<answer>` structure is incorrect.
+    *   **`0.1` points:** If the overall structure is correct, BUT the content within `<answer>` does *not* meet the criteria (e.g., multiple lines, empty line, disallowed characters, missing '=').
+    *   **`1.0` points:** If the overall structure is correct AND the `<answer>` tag contains exactly one line that follows the basic equation syntax rules.
+
+### 2. `equation_reward_func`
+
+This function evaluates the mathematical correctness and validity of the equation provided within the `<answer>` tag, ensuring it meets the specific constraints of the Countdown task.
+
+**Logic & Scoring:**
+
+*   **Input:** Takes model completions (`completions`), the corresponding original prompts (`prompts`), the target values (`target`), and the list of available numbers (`nums`) for each example.
+*   **Checks:**
+    1.  **Answer Extraction:** Extracts the content within the `<answer>` tags.
+    2.  **Equation Parsing:** Splits the extracted content into a Left-Hand Side (LHS) and a Right-Hand Side (RHS) based on the `=` sign. Fails if no `=` is found or RHS is not a number.
+    3.  **Character Validation (LHS):** Ensures the LHS contains only allowed characters (digits, operators `+-*/`, parentheses, dots, whitespace).
+    4.  **Number Usage Validation (LHS):** Extracts all numbers used on the LHS. It then compares this list (sorted) against the required input `nums` list (sorted). They must match exactly – meaning each required number is used precisely once on the LHS.
+    5.  **LHS Evaluation:** Uses Python's `eval()` function in a restricted environment (`{"__builtins__": None}, {}`) to calculate the numerical result of the LHS.
+    6.  **Correctness Check:** Compares the calculated LHS result against both the numerical value of the RHS *and* the ground truth `target` value from the dataset. It uses a small tolerance (`1e-5`) for floating-point comparisons.
+*   **Scoring:**
+    *   **`1.0` points:** If the answer is correctly extracted, the equation is parseable, the LHS uses only allowed characters, *all* required numbers are used exactly once on the LHS, the LHS evaluates correctly, *and* the result matches both the RHS and the target value.
+    *   **`0.0` points:** If *any* of the above checks fail (e.g., format error, incorrect number usage, disallowed characters, evaluation error, incorrect final value).
+
+These two functions work together: `strict_format_reward_func` encourages the model to learn the basic output structure, while `equation_reward_func` pushes it towards generating mathematically sound and correct solutions for the specific task.
