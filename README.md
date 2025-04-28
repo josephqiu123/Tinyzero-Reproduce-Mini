@@ -2,7 +2,7 @@
 
 This repository demonstrates Reinforcement Learning from Human Feedback (RLHF) for Large Language Models (LLMs) using Group Relative Policy Optimization (GRPO). It specifically implements a concept similar to **TinyZero**, which itself is an effort to reproduce aspects of powerful self-improving models like DeepSeek R1 Zero ([Link Placeholder for DeepSeek R1 Zero reference/paper]).
 
-Leveraging the efficiency of the `unsloth` library and `trl`, this project aims to make advanced RLHF techniques significantly more accessible. While many RLHF pipelines demand massive GPU clusters, **this implementation is designed to run effectively on a single GPU with approximately 40GB of VRAM** (e.g., an NVIDIA A100 40GB, H100 40GB, or potentially consumer cards like RTX 4090/3090 with careful configuration).
+Leveraging the efficiency of the `unsloth` library and `trl`, this project aims to make advanced RLHF techniques significantly more accessible. While many RLHF pipelines demand massive GPU clusters, **this implementation is designed to run effectively on a single GPU with approximately >30GB of VRAM** (e.g., an NVIDIA A100 40GB, H100 40GB, or potentially consumer cards like RTX 4090/3090 with careful configuration).
 
 The goal is to train a model to solve a specific mathematical task (inspired by the "Countdown" numbers game): generating an equation using a given set of numbers to reach a target value, while adhering to a predefined `<think>`/`<answer>` response format. This serves as a practical example of applying GRPO in a lower-resource setting.
 
