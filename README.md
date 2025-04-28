@@ -1,8 +1,8 @@
-# Tinyzero-Reproduce-Mini
+# GRPO Fine-tuning LLMs for Mathematical Equation Generation (TinyZero Reproduction)
 
-This repository demonstrates Reinforcement Learning from Human Feedback (RLHF) for Large Language Models (LLMs) using Group Relative Policy Optimization (GRPO). It specifically implements a concept similar to **TinyZero**, which itself is an effort to reproduce aspects of powerful self-improving models like DeepSeek R1 Zero ([Link Placeholder for DeepSeek R1 Zero reference/paper]).
+This repository demonstrates Reinforcement Learning from Human Feedback (RLHF) for Large Language Models (LLMs) using Generative Replay Policy Optimization (GRPO). It specifically implements a concept similar to **TinyZero**, which itself is an effort to reproduce aspects of powerful self-improving models like DeepSeek R1 Zero ([Link Placeholder for DeepSeek R1 Zero reference/paper]).
 
-Leveraging the efficiency of the `unsloth` library and `trl`, this project aims to make advanced RLHF techniques significantly more accessible. While many RLHF pipelines demand massive GPU clusters, **this implementation is designed to run effectively on a single GPU with approximately >30GB of VRAM** (e.g., an NVIDIA A100 40GB, H100 40GB, or potentially consumer cards like RTX 4090/3090 with careful configuration).
+Leveraging the efficiency of the `unsloth` library and `trl`, this project aims to make advanced RLHF techniques significantly more accessible. While many RLHF pipelines demand massive GPU clusters, **this implementation is designed to run effectively on a single GPU with approximately 40GB of VRAM** (e.g., an NVIDIA A100 40GB, H100 40GB, or potentially consumer cards like RTX 4090/3090 with careful configuration).
 
 The goal is to train a model to solve a specific mathematical task (inspired by the "Countdown" numbers game): generating an equation using a given set of numbers to reach a target value, while adhering to a predefined `<think>`/`<answer>` response format. This serves as a practical example of applying GRPO in a lower-resource setting.
 
@@ -10,17 +10,16 @@ The goal is to train a model to solve a specific mathematical task (inspired by 
 
 Traditional RLHF methods, especially those aiming for self-improvement loops seen in state-of-the-art models, often require substantial computational resources, putting them out of reach for many researchers and developers. Projects like DeepSeek R1 Zero showcase remarkable capabilities achieved through complex RL techniques but necessitate large-scale infrastructure.
 
-**TinyZero** emerged as an initiative (often associated with community efforts or specific tutorials) to replicate some of these advanced self-improvement ideas on a much smaller, more manageable scale. It demonstrates that the core principles can be explored and yield improvements even without massive compute.
+**TinyZero** ([GitHub Repo: Jiayi-Pan/TinyZero](https://github.com/Jiayi-Pan/TinyZero)) emerged as an initiative to replicate some of these advanced self-improvement ideas on a much smaller, more manageable scale. It demonstrates that the core principles can be explored and yield improvements even without massive compute.
 
-This repository builds upon the spirit of TinyZero and utilizes an `unsloth`-based framework (inspired by or directly adapted from an Unsloth tutorial) to provide a concrete, runnable example of GRPO-based RLHF. By focusing on efficiency (4-bit quantization, PEFT/LoRA, optimized kernels via Unsloth), it demonstrates the feasibility of performing this type of training on a single, moderately powerful GPU (~40GB VRAM).
+This repository builds upon the spirit of TinyZero and utilizes an `unsloth`-based framework, directly adapted from the **Unsloth Qwen2.5 GRPO Tutorial** ([Colab Notebook Link](https://colab.research.google.com/github/unslothai/notebooks/blob/main/nb/Qwen2.5_(3B)-GRPO.ipynb#scrollTo=vzOuSVCL_GA9)). It provides a concrete, runnable example of GRPO-based RLHF. The underlying RL algorithm used is Group Relative Policy Optimization (GRPO); you can learn more about its theory in the [Hugging Face LLM Course - GRPO Section](https://huggingface.co/learn/llm-course/en/chapter12/3a). By focusing on efficiency (4-bit quantization, PEFT/LoRA, optimized kernels via Unsloth), it demonstrates the feasibility of performing this type of training on a single, moderately powerful GPU (~40GB VRAM).
 
 ## Features
 
 *   **Accessible RLHF:** Designed to run on a single GPU with ~40GB VRAM, significantly lowering the barrier for RLHF experimentation compared to large-scale setups.
-*   **TinyZero Concept:** Implements a GRPO-based RLHF loop inspired by efforts to reproduce advanced RL techniques (like DeepSeek R1 Zero) on a smaller scale.
-*   **Reinforcement Learning (GRPO):** Uses `trl.GRPOTrainer` to fine-tune the LLM based on custom reward signals.
-*   **Efficiency (`unsloth`):** Leverages `unsloth` for:
-    *   Faster training and inference.
+*   **TinyZero Concept:** Implements a GRPO-based RLHF loop inspired by efforts to reproduce advanced RL techniques ([TinyZero Repo](https://github.com/Jiayi-Pan/TinyZero)) on a smaller scale.
+*   **Reinforcement Learning (GRPO):** Uses `trl.GRPOTrainer` to fine-tune the LLM based on custom reward signals. Learn more about GRPO [here](https://huggingface.co/learn/llm-course/en/chapter12/3a).
+*   **Efficiency (`unsloth`):** Leverages `unsloth` for faster training and inference, based on their [GRPO tutorial](https://colab.research.google.com/github/unslothai/notebooks/blob/main/nb/Qwen2.5_(3B)-GRPO.ipynb#scrollTo=vzOuSVCL_GA9).
     *   Memory savings via 4-bit quantization (`load_in_4bit`).
     *   Efficient PEFT (LoRA) implementation.
 *   **Custom Rewards:** Implements two reward functions focused on format adherence and mathematical correctness for the Countdown task.
@@ -41,3 +40,38 @@ This repository builds upon the spirit of TinyZero and utilizes an `unsloth`-bas
     *   `accelerate`
     *   `bitsandbytes` (for 4-bit/8-bit)
     *   `xformers` (optional, can provide speedups)
+
+## Installation
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/[Your GitHub Username]/[Your Repository Name].git
+    cd [Your Repository Name]
+    ```
+
+2.  **Create a virtual environment (recommended):**
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    ```
+
+3.  **Install dependencies:**
+    *   **Install PyTorch:** Follow instructions on the [official PyTorch website](https://pytorch.org/get-started/locally/) for your specific CUDA version.
+    *   **Install Unsloth:** Follow the specific instructions on the [Unsloth GitHub](https://github.com/unslothai/unsloth) as it might depend on your environment (PyTorch/CUDA version). Often it's like:
+        ```bash
+        pip install "unsloth[cuXXX-torchYYY]" # Replace XXX and YYY with your CUDA/Torch versions
+        ```
+    *   **Install other libraries:**
+        ```bash
+        pip install trl datasets transformers accelerate bitsandbytes # Add xformers if desired
+        ```
+
+## Dataset
+
+The training script expects a dataset (e.g., in Parquet format) with at least two columns:
+
+*   `nums`: A list of integers available to form the equation.
+*   `target`: The integer target value the equation should equal.
+
+The specific dataset used in the example script (`data/Countdown-Tasks-3to4.parquet`) can be found on the Hugging Face Hub:
+*   **Dataset Source:** [Jiayi-Pan/Countdown-Tasks-3to4](https://huggingface.co/datasets/Jiayi-Pan/Countdown-Tasks-3to4)
