@@ -1,5 +1,4 @@
 # Tinyzero-Reproduce-Mini
-# GRPO Fine-tuning LLMs for Mathematical Equation Generation (TinyZero Reproduction)
 
 This repository demonstrates Reinforcement Learning from Human Feedback (RLHF) for Large Language Models (LLMs) using Group Relative Policy Optimization (GRPO). It specifically implements a concept similar to **TinyZero**, which itself is an effort to reproduce aspects of powerful self-improving models like DeepSeek R1 Zero ([Link Placeholder for DeepSeek R1 Zero reference/paper]).
 
