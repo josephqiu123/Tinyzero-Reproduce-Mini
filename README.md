@@ -92,6 +92,27 @@ data = load_dataset("Jiayi-Pan/Countdown-Tasks-3to4", split="train")
 # Example using local file:
 # data = load_dataset("parquet", data_files="data/Countdown-Tasks-3to4.parquet", split="train")
 ```
+3. **Training Data Example:** The model is trained using a specific chat-based prompt format. Each training instance is structured as a list of dictionaries, following the standard chat template structure.
+```python
+{
+  # The prompt field is a list containing system and user messages
+  'prompt': [
+    {'role': 'system',
+     'content': 'You are a helpful assistant. You first thinks about the reasoning process in the mind and then provides the user with the answer.\nRespond in the following format:\n<think>\n...\n</think>\n<answer>\n...\n</answer>\n'
+    },
+    {'role': 'user',
+     'content': '\nUsing the numbers [[6, 7, 8]], create an equation that equals 47.You can use basic arithmetic operations (+, -, *, /) and each number can only be used once.\n'
+    }
+  ],
+
+  # The target value is needed for the equation_reward_func
+  'target': 47,
+
+  # The original numbers are needed for the equation_reward_func
+  'nums': [6, 7, 8]
+}
+```
+Note: Unlike some implementations or descriptions of TinyZero which might incorporate few-shot examples directly into the user prompt for in-context learning, this specific script constructs the user prompt without including explicit few-shot examples. The learning relies solely on the GRPO fine-tuning process based on the provided system prompt and the single user query.
 
 ## Reward Functions
 
