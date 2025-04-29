@@ -67,13 +67,12 @@ This repository builds upon the spirit of TinyZero and utilizes an `unsloth`-bas
         ```bash
         pip install bitsandbytes
         ```
-4.  **Run**
-
-   *   **Environmental variables** 
+4.  **Run:**
+    *   **Environmental variables** 
         ```bash
         export VLLM_USE_V1=0
         ```
-   *   **Run the code** 
+    *   **Run the code**
         ```bash
         python rl_llm_3b_unsloth_tinyzero_bigbatch.py
         ```     
@@ -154,4 +153,8 @@ This section outlines the observations from a specific training run conducted us
 *   **Mathematical Correctness & Stability:** Learning the mathematical logic proved more challenging. The correctness rate (measured by `equation_reward_func`) reached approximately **0.8 (or 80%) after about 200 steps**. However, after reaching this peak, the performance on this metric was observed to be **highly volatile** throughout the remainder of the training run (steps 200-500). The correctness score fluctuated considerably without stabilizing at a higher value.
 
     ![Plot showing correctness reward peaking around 0.8 then exhibiting volatility](./images/equation.png)
+
+*   **Output Length Dynamics:** Initially, as the model learned the format constraints (rewarded by `strict_format_reward_func`), the average length of the completions tended to decrease. After the format was largely mastered (around step 50-100), the length dynamics shifted. The model then began adjusting the length of the content within the `<think>` section, exploring different reasoning path lengths as it attempted to optimize for mathematical correctness (`equation_reward_func`). This suggests the model was actively tuning its verbosity and reasoning process during the RL phase.
+
+    ![Plot showing average completion length changes during training](./images/completion_length.png)
 
