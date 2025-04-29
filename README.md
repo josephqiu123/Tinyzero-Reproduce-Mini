@@ -6,7 +6,7 @@ Leveraging the efficiency of the `unsloth` library and `trl`, this project aims 
 
 The goal is to train a model to solve a specific mathematical task (inspired by the "Countdown" numbers game): generating an equation using a given set of numbers to reach a target value, while adhering to a predefined `<think>`/`<answer>` reasoning format. 
 
-## Background: TinyZero and Accessible RLHF
+TinyZero and Accessible RLHF
 
 Traditional RLHF methods, especially those aiming for self-improvement loops seen in state-of-the-art models, often require substantial computational resources. Projects like DeepSeek R1 Zero showcase remarkable capabilities achieved through complex RL techniques but necessitate large-scale infrastructure.
 
@@ -52,7 +52,7 @@ This repository builds upon the spirit of TinyZero and utilizes an `unsloth`-bas
 
     *   **Install Unsloth:** Follow the specific instructions on the [Unsloth GitHub](https://github.com/unslothai/unsloth). This often depends on your environment (PyTorch/CUDA version) and will pull in many dependencies like `transformers` and potentially `bitsandbytes`, `accelerate`.
         ```bash
-        pip install "unsloth"
+        pip install unsloth
         ```
 
     *   **Install VLLM:** VLLM installation can be sensitive to CUDA/PyTorch versions. Check the [VLLM documentation](https://docs.vllm.ai/en/latest/getting_started/installation.html) for the recommended method for your setup. It might be:
@@ -67,6 +67,16 @@ This repository builds upon the spirit of TinyZero and utilizes an `unsloth`-bas
         ```bash
         pip install bitsandbytes
         ```
+4.  **Run**
+
+   *   **Environmental variables** 
+        ```bash
+        export VLLM_USE_V1=0
+        ```
+   *   **Run the code** 
+        ```bash
+        python rl_llm_3b_unsloth_tinyzero_bigbatch.py
+        ```     
 
 
 ## Datasets
@@ -124,4 +134,24 @@ This function evaluates the mathematical correctness and validity of the equatio
     *   **`1.0` points:** If the answer is correctly extracted, the equation is parseable, the LHS uses only allowed characters, *all* required numbers are used exactly once on the LHS, the LHS evaluates correctly, *and* the result matches both the RHS and the target value.
     *   **`0.0` points:** If *any* of the above checks fail (e.g., format error, incorrect number usage, disallowed characters, evaluation error, incorrect final value).
 
-These two functions work together: `strict_format_reward_func` encourages the model to learn the basic output structure, while `equation_reward_func` pushes it towards generating mathematically sound and correct solutions for the specific task.
+## Results
+
+This section outlines the observations from a specific training run conducted using the configuration detailed in this repository and the provided script. Please note that results can vary based on the exact hardware, software versions, hyperparameters, and dataset sampling.
+
+**Experimental Setup:**
+
+*   **Hardware:** 1 x NVIDIA A100 GPU (40GB VRAM)
+*   **Effective Batch Size:** 64 (Note: This was achieved through a combination of `per_device_train_batch_size` and `gradient_accumulation_steps`. **A larger effective batch size is highly recommended** for potentially more stable training, although this will increase memory requirements.)
+*   **Training Duration:** The training run completed 500 steps in approximately 5.5 hours.
+
+**Learning Observations:**
+
+*   **Format Adherence:** The model demonstrated rapid learning of the required `<think>`/`<answer>` output structure. Consistently correct formatting (as measured by the `strict_format_reward_func`) was achieved relatively early, around **step 50**. The plot below illustrates this rapid convergence:
+
+    ![Plot showing format reward converging quickly to 1.0 around step 50](./images/format.png)
+
+
+*   **Mathematical Correctness & Stability:** Learning the mathematical logic proved more challenging. The correctness rate (measured by `equation_reward_func`) reached approximately **0.8 (or 80%) after about 200 steps**. However, after reaching this peak, the performance on this metric was observed to be **highly volatile** throughout the remainder of the training run (steps 200-500). The correctness score fluctuated considerably without stabilizing at a higher value.
+
+    ![Plot showing correctness reward peaking around 0.8 then exhibiting volatility](./images/equation.png)
+
